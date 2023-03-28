@@ -5,35 +5,44 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-
-
+import { getDatabase, ref, onValue } from 'firebase/database';
+import { useEffect } from 'react';
+import { reportpets } from '../firebaseConfig';
 function UserHome() {
 
   const [cityFilter, setCityFilter] = useState("");
-
- 
-
-  let whole=[
-    { id:"1",name: "Buddy1",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Pune" },
-    { id:"2",name: "Buddy2",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Mumbai" },
-    { id:"3",name: "Buddy3",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "sangli" },
-    { id:"4",name: "Buddy4",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Pune" },
-    { id:"5",name: "Buddy5",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Sangli" },
-    { id:"6",name: "Buddy6",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Mumbai" },
-    { id:"7",name: "Buddy7",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "sangli" },
-    { id:"8",name: "Buddy8",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Pune" },
-    { id:"9",name: "Buddy9",breed:"german",age:"6",gender:"male",shelyteraadhar:"212121",imageurl:"dog.png",price: "5000", city: "Mumbai" },
-
-  ];
+  const [pets, setPets] = useState([]);
 
   const handleCityFilterChange = (event) => {
     setCityFilter(event.target.value);
   };
 
-  const filteredPets = whole.filter((pet) =>
+  const filteredPets = pets.filter((pet) =>
     pet.city.toLowerCase().includes(cityFilter.toLowerCase())
   );
 
+  const reportshelter=(id)=>{
+    reportpets(id,true)
+  }
+
+  function handleClick(phoneNumber) {
+    window.location.href = `tel:${phoneNumber}`;
+  }
+
+  useEffect(() => {
+    const dbb = getDatabase();
+    const petsRef = ref(dbb, 'users/pets');
+
+    const unsubscribe = onValue(petsRef, (snapshot) => {
+      const petsData = snapshot.val();
+      const petsArray = petsData ? Object.entries(petsData).map(([id, pet]) => ({ id, ...pet })) : [];
+      setPets(petsArray);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <>
@@ -53,7 +62,8 @@ function UserHome() {
       <div className="d-flex flex-wrap justify-content-center">
       {filteredPets.map((pet) => (
         <div class="card m-3 form-bg form-container">
-       
+          { pet.report? <span class="badge badge-danger" style={{width:"60px",marginBottom:"10px"}}>Reported</span>:
+          <span class="badge badge-success" style={{width:"60px",marginBottom:"10px"}}>Trusted</span>}
             <span class="badge badge-success p-2" >{pet.name}</span> 
             <img
               src={pet.imageurl}
@@ -66,14 +76,16 @@ function UserHome() {
           <span class="badge badge-info p-2 m-2" >City : {pet.city} , price : {pet.price} </span>
           <span class="badge badge-info p-2 m-2" >Gender : {pet.gender} , Age: {pet.age}  </span>
 
+          <span class="badge badge-info p-2 m-2" >Phone Number : {pet.phonenumber}  </span>
+
 
 			<div class="d-flex justify-content-around">
-			  <h5 class="card-title text-center"> 
-          <Link to="/chat" className="btn btn-success" >Chat For Enquiry</Link>
-        </h5>
+      <h5 className="card-title text-center">
+        <button className="btn btn-success" onClick={() => handleClick(pet.phonenumber)}>Call For Enquiry</button>
+      </h5>
 
         <h5 class="card-title text-center">
-          <button className="btn btn-danger">Report</button>
+          <button className="btn btn-danger" onClick={()=>{reportshelter(pet.id)}}>Report</button>
         </h5>
 		  </div>
 

@@ -8,6 +8,9 @@ import {
 } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
+import { addpets, login, register } from '../firebaseConfig';
+import { getDatabase, ref, set,get } from "firebase/database";
+import { async } from '@firebase/util';
 
 
 function Navbarcomponent(props) {
@@ -16,45 +19,68 @@ function Navbarcomponent(props) {
   const [password, setpassword] = useState('');
   const [email, setemail] = useState('');
   const [address, setaddress] = useState('');
-  const [city, setcity] = useState('');
   const [phone, setphone] = useState('');
   const [aadhar, setaadhar] = useState('');
   const [usertype, setusertype] = useState('');
 
-  const [className, setClassName] = useState("modal fade");
+  const [showModal1, setShowModal1] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
 
- 
+  const clear=()=>{
+    document.getElementById("myForm").reset();
+}
+
 
   const logout=async()=>{
 		try {
 			props.setCurrentAccount("");
       Cookies.remove('aadhar');
       Cookies.remove('usertype');
+    
       <Loader></Loader>
 		  } catch (err) {
 			console.log(err);
 		  }
 	  }
 
-    function login(){
-      if(aadhar && password && usertype){
-        props.setCurrentAccount(aadhar);
-        Cookies.set('aadhar', aadhar);
-        Cookies.set('usertype', usertype);
-        setClassName(className + " hide");
-      }else
-      {
-        alert("Failed To login")
-      }
-    }
+    const loginhandle= async()=>{
 
-    function register(){
+      const db = getDatabase();
+      const userRef = ref(db, 'users/' + phone);
+      const userSnapshot = await get(userRef);
+      const userData = userSnapshot.val();
+
+      if (!userData) {
+        alert("Login Failed ")
+      }
+      else{
+        if(userData.password===password && userData.usertype===usertype){
+          setShowModal1(false);
+          props.setCurrentAccount(userData.aadharcard);
+          Cookies.set('aadhar', userData.aadhar);
+          Cookies.set('usertype', userData.usertype);
+          clear();
+        }
+        else{
+          setShowModal1(false);
+          alert("Login Failed")
+        }
+        
+      }  
+  }
+
+    function registerhandle(){
       if(aadhar && password && usertype){
-      alert("Register Success")
+        register(phone, username, email,usertype,aadhar,address,password);
+        clear();
+        setShowModal2(false)
+        
       }else{
         alert("Failed to register")
       }
     }
+
+   
 
 
   return (
@@ -94,13 +120,15 @@ function Navbarcomponent(props) {
 
             {props.currentAccount ? <> 
         <Link class="nav-link" to="/">Home </Link>
+        <Link class="nav-link" to="/chat">Chat</Link>
         <button className="btn btn-outline-success my-2 my-sm-0" onClick={logout} >Logout</button></>
             :
             <div className="form-inline">
-                <button className="btn btn-outline-success my-2 my-sm-0" data-toggle="modal" data-target="#register
+                <button className="btn btn-outline-success my-2 my-sm-0" onClick={() => setShowModal1(true)} data-toggle="modal" data-target="#register
                 "  >Register</button>
-                <button className="btn btn-outline-success my-2 my-sm-0 ml-3" data-toggle="modal" data-target="#login"
+                <button className="btn btn-outline-success my-2 my-sm-0 ml-3" onClick={() => setShowModal2(true)} data-toggle="modal" data-target="#login"
                   >Login</button>
+                  
             </div>}
 
         </div>
@@ -108,7 +136,7 @@ function Navbarcomponent(props) {
     </div>
 
 
-<div className="modal fade" id="register" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div className={`modal fade ${showModal2 ? 'show' : ''}`} id="register" tabindex="-1" aria-labelledby="exampleModalLabel"  aria-hidden={!showModal2}>
     <div className="modal-dialog">
       <div className="modal-content">
 
@@ -121,7 +149,7 @@ function Navbarcomponent(props) {
           </button>
         </div>
         <div className="modal-body">
-        <form>
+        <form className="needs-validation" id="myForm" noValidate >
 
         <div className="form-check form-check-inline">
         <input className="form-check-input" type="radio" value="user" onChange={(e) => setusertype(e.target.value)} name="inlineRadioOptions" id="inlineRadio1" />
@@ -136,48 +164,44 @@ function Navbarcomponent(props) {
 
           <div className="form-group">
             <label for="username" className="col-form-label">Full Name :</label>
-            <input type="text" value={username} onChange={(e) => setusername(e.target.value)} className="form-control" id="username"/>
+            <input type="text" value={username} onChange={(e) => setusername(e.target.value)} className="form-control" id="username" required />
           </div>
           <div className="form-group">
             <label for="phone" className="col-form-label">Phone Number :</label>
-            <input type="text" value={phone} onChange={(e) => setphone(e.target.value)} className="form-control" id="phone"/>
+            <input type="text" value={phone} onChange={(e) => setphone(e.target.value)} className="form-control" id="phone" required />
           </div>
           <div className="form-group">
             <label for="email" className="col-form-label">Email :</label>
-            <input type="text" value={email} onChange={(e) => setemail(e.target.value)}  className="form-control" id="email"/>
+            <input type="text" value={email} onChange={(e) => setemail(e.target.value)}  className="form-control" id="email" required />
           </div>
 
           <div className="form-group">
             <label for="aadhar" className="col-form-label">Aadharcard Number :</label>
-            <input type="text" value={aadhar} onChange={(e) => setaadhar(e.target.value)}  className="form-control" id="aadhar"/>
+            <input type="text" value={aadhar} onChange={(e) => setaadhar(e.target.value)}  className="form-control" id="aadhar" required />
           </div>
 
           <div className="form-group">
             <label for="address" className="col-form-label">Full Address :</label>
-            <textarea type="text" value={address} onChange={(e) => setaddress(e.target.value)}  className="form-control" id="address"/>
+            <textarea type="text" value={address} onChange={(e) => setaddress(e.target.value)}  className="form-control" id="address" required />
           </div>
 
-          <div className="form-group">
-            <label for="city" className="col-form-label">City :</label>
-            <input type="text" value={city} onChange={(e) => setcity(e.target.value)}  className="form-control" id="city"/>
-          </div>
-
+        
           <div className="form-group">
             <label for="password" className="col-form-label">Password :</label>
-            <input type="password" value={password} onChange={(e) => setpassword(e.target.value)}  className="form-control" id="password"/>
+            <input type="password" value={password} onChange={(e) => setpassword(e.target.value)}  className="form-control" id="password" required />
           </div>
      
         </form>
         </div>
         <div className="modal-footer">
           <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" onClick={register} className="btn btn-primary">Register</button>
+          <button type="button" onClick={registerhandle} data-dismiss="modal" className="btn btn-primary">Register</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div className={className} id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+  <div className={`modal fade ${showModal1 ? 'show' : ''}`} id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden={!showModal1} >
     <div className="modal-dialog">
       <div className="modal-content">
         <div className="modal-header">
@@ -187,7 +211,7 @@ function Navbarcomponent(props) {
           </button>
         </div>
         <div className="modal-body">
-        <form>
+        <form className="needs-validation" id="myForm" noValidate>
 
         <div className="form-check form-check-inline">
         <input className="form-check-input" value="user" onChange={(e) => setusertype(e.target.value)} type="radio" name="inlineRadioOptions" id="inlineRadio1" />
@@ -206,8 +230,8 @@ function Navbarcomponent(props) {
       </div>
           
           <div className="form-group">
-            <label for="aadhar" className="col-form-label">Aadharcard Number :</label>
-            <input type="text" value={aadhar} onChange={(e) => setaadhar(e.target.value)}  className="form-control" id="aadhar"/>
+            <label for="aadhar" className="col-form-label">Phone Number :</label>
+            <input type="text" value={phone} onChange={(e) => setphone(e.target.value)}  className="form-control" id="phone"/>
           </div>
           <div className="form-group">
             <label for="password" className="col-form-label">Password :</label>
@@ -218,7 +242,8 @@ function Navbarcomponent(props) {
         </div>
         <div className="modal-footer">
           <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" onClick={login} className="btn btn-primary">Login</button>
+          <button type="button" onClick={()=>loginhandle()} data-dismiss="modal" className="btn btn-primary">Login</button>
+      
         </div>
       </div>
     </div>

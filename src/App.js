@@ -11,7 +11,6 @@ import {
 } from 'react-router-dom';
 import Loader from './components/Loader';
 
-import ShelterComponent from './components/ShelterComponent';
 import Cookies from 'js-cookie';
 import AdminHome from './components/AdminHome';
 import UserHome from './components/UserHome';
@@ -52,7 +51,10 @@ function App() {
                 </>
               )}
               {Cookies.get('usertype') ==='shelter' && (
+                <>
                 <Route exact path="/" element={<ShelterHome></ShelterHome>} />
+                <Route exact path="/chat" element={<ChatComponent></ChatComponent>} />
+                </>
               )}
 
             </Routes>
