@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-
 import { addpets } from '../firebaseConfig';
 import { getDatabase, ref, onValue } from 'firebase/database';
+import { uploadImageToFirebase } from "./uploaddata";
 
 function ShelterHome() {
   const [name, setName] = useState("");
@@ -13,8 +13,6 @@ function ShelterHome() {
   const [price, setPrice] = useState("");
   const [city, setCity] = useState("");
   const [phonenumber, setPhone] = useState("");
-
-
   const [cityFilter, setCityFilter] = useState("");
   const [pets, setPets] = useState([]);
 
@@ -33,43 +31,55 @@ function ShelterHome() {
     return Math.floor(Math.random() * (max - min) + min);
   }
 
-
-  function add(){
-    addpets(getRandomInt(1,500),name,breed,age,gender,shelterAadhar,phonenumber,imageUrl,price,city)
-  }
-
-  useEffect(() => {
-    const dbb = getDatabase();
-    const petsRef = ref(dbb, 'users/pets');
-
-    const unsubscribe = onValue(petsRef, (snapshot) => {
-      const petsData = snapshot.val();
-      const petsArray = petsData ? Object.entries(petsData).map(([id, pet]) => ({ id, ...pet })) : [];
-      setPets(petsArray);
-    });
-
-    return () => {
-      unsubscribe();
+    const handleImageChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        setImageUrl(file);
+        alert("Image Saved")
+      }
     };
-  }, []);
+    function add(){
+      uploadImageToFirebase(getRandomInt(1,500),name,breed,age,gender,shelterAadhar,phonenumber,imageUrl,price,city);
+    }
+  
+    useEffect(() => {
+      const dbb = getDatabase();
+      const petsRef = ref(dbb, 'users/pets');
+
+      const unsubscribe = onValue(petsRef, (snapshot) => {
+        const petsData = snapshot.val();
+        const petsArray = petsData ? Object.entries(petsData).map(([id, pet]) => ({ id, ...pet })) : [];
+        setPets(petsArray);
+      });
+
+
+      return () => {
+        unsubscribe();
+      };
+    }, []);
 
   return (
-    <><div className='container'  style={{width:"400px"}}>
-    <div className="form-group">
-        <label htmlFor="cityFilter" style={{marginLeft:"100px"}}>Filter by city</label>
+    <>
+
+    
+
+    <div class=" container d-flex justify-content-center mt-2 mr-5">
+
+    <div className="form-group mt-2">
         <input
           type="text"
-          className="form-control"
+          className="form-control outline-info"
           id="cityFilter"
+          placeholder="Filter by city"
           value={cityFilter}
           onChange={handleCityFilterChange}
         />
       </div>
 
-      <button
-       style={{marginLeft:"150px"}}
+    <div>
+    <button
         type="button"
-        class="btn btn-primary"
+        class="btn btn-outline-info mt-3 m-1 ml-5"
         data-toggle="modal"
         data-target="#exampleModal"
         data-whatever="@getbootstrap"
@@ -77,6 +87,8 @@ function ShelterHome() {
         Add Pets
       </button>
     </div>
+    </div>
+    <hr/>
 
     <div className="d-flex flex-wrap justify-content-center">
     {filteredPets.map((pet) => (
@@ -207,19 +219,7 @@ function ShelterHome() {
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label htmlFor="imageUrl" className="form-label">
-                    Image URL
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="imageUrl"
-                    value={imageUrl}
-                    onChange={(event) => setImageUrl(event.target.value)}
-                    required
-                  />
-                </div>
+  
                 <div className="mb-3">
                   <label htmlFor="price" className="form-label">
                     Price
@@ -246,6 +246,13 @@ function ShelterHome() {
                     required
                   />
                 </div>
+
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" onChange={handleImageChange} id="customFile"/>
+                  <label class="custom-file-label" for="customFile">Choose file</label>
+                </div>
+                
+
               </form>
             </div>
             <div class="modal-footer">

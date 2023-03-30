@@ -37,7 +37,7 @@ function App() {
     <Loader></Loader>
       {currentAccount?
       <Router>
-          <Navbarcomponent setCurrentAccount={setCurrentAccount}  currentAccount={currentAccount}></Navbarcomponent>
+          <Navbarcomponent setCurrentAccount={setCurrentAccount} currentusertype={currentusertype}  currentAccount={currentAccount}></Navbarcomponent>
           <>
 
             <Routes>

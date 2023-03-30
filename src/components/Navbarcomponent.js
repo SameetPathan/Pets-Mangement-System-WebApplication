@@ -119,8 +119,8 @@ function Navbarcomponent(props) {
       </ul>
 
             {props.currentAccount ? <> 
-        <Link class="nav-link" to="/">Home </Link>
-        <Link class="nav-link" to="/chat">Chat</Link>
+        <Link class="nav-link btn btn-outline-info mr-2" to="/">Home </Link>
+        { props.currentusertype != 'admin' ? <Link class="nav-link btn btn-outline-info mr-2" to="/chat">Chat</Link>:""}
         <button className="btn btn-outline-success my-2 my-sm-0" onClick={logout} >Logout</button></>
             :
             <div className="form-inline">

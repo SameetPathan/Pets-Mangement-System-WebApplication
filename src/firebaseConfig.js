@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getDatabase, ref, set,get ,update} from "firebase/database";
+import { getDatabase, ref, set,get ,update,remove } from "firebase/database";
 
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ export function register(phonenumber, fullname, email,usertype,aadharcard,addres
     set(ref(dbb, 'users/' + phonenumber), {
       username: fullname,
       email: email,
-      usertype:"admin",
+      usertype:usertype,
       aadharcard:aadharcard,
       address:address,
       password:password
@@ -66,4 +66,15 @@ export function reportpets(id,status) {
         console.error('Error getting pet data: ', error);
     });
 }
+
+export function deletePet(id) {
+    const db = getDatabase();
+    const petRef = ref(db, 'users/pets/' + id);
+  
+    remove(petRef).then(() => {
+      alert('Pet deleted successfully!');
+    }).catch((error) => {
+      console.error('Error deleting pet: ', error);
+    });
+  }
 

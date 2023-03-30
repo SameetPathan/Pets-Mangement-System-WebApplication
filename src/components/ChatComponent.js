@@ -36,8 +36,8 @@ function ChatComponent() {
   return (
     <div>
 
-      <div class="card text-center container mt-3 p-1" style={{width:"600px"}}>
-        <div class="card-header">
+      <div class="card text-center container mt-3 p-1 mb-3" style={{width:"900px"}}>
+        <div class="card-header bg-info">
           Chat
           <button
        style={{marginLeft:"150px"}}
@@ -60,15 +60,15 @@ function ChatComponent() {
 
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb">
-                <h2  style={{fontSize:"20px"}}>{message.name} : </h2>&nbsp;&nbsp;&nbsp;
-                <h2 class="breadcrumb-item active"  style={{fontSize:"18px"}}> {message.message}</h2>
+                <h2 style={{fontSize:"16px"}}>{message.name} : </h2>&nbsp;&nbsp;&nbsp;
+                <h2 class="breadcrumb-item active"  style={{fontSize:"14px"}}> {message.message}</h2>
               </ol>
             </nav>
           </li>
         ))}
       </ul>
         </div>
-        <div class="card-footer text-muted">
+        <div class="card-footer bg-info">
           Connecting Shelter and Users
         </div>
       </div>
