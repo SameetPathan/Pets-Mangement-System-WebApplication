@@ -6,7 +6,6 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-
 import Cookies from 'js-cookie';
 import { addpets, login, register } from '../firebaseConfig';
 import { getDatabase, ref, set,get } from "firebase/database";
@@ -34,9 +33,10 @@ function Navbarcomponent(props) {
   const logout=async()=>{
 		try {
 			props.setCurrentAccount("");
+      props.setCurrentusertype("");
       Cookies.remove('aadharcard');
       Cookies.remove('usertype');
-    
+   
       <Loader></Loader>
 		  } catch (err) {
 			console.log(err);
@@ -55,11 +55,12 @@ function Navbarcomponent(props) {
       }
       else{
         if(userData.password===password && userData.usertype===usertype){
-          setShowModal1(false);
+        
           props.setCurrentAccount(userData.aadharcard);
-          props.setCurrentusertype(userData.usertype)
+          props.setCurrentusertype(userData.usertype);
           Cookies.set('aadharcard', userData.aadharcard);
           Cookies.set('usertype', userData.usertype);
+          setShowModal1(false);
           clear();
         }
         else{

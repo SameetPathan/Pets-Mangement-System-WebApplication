@@ -24,7 +24,7 @@ function App() {
   const [currentusertype, setCurrentusertype] = useState("");
 
   useEffect(() => {
-    const cookieUsername = Cookies.get('aadhar');
+    const cookieUsername = Cookies.get('aadharcard');
     const cookieUsertype = Cookies.get('usertype')
     if (cookieUsername) {
       setCurrentAccount(cookieUsername);
@@ -41,16 +41,16 @@ function App() {
           <>
 
             <Routes>
-              {Cookies.get('usertype') === 'admin' && (
-                <Route exact path="/" element={<AdminHome></AdminHome>} />
+              {currentusertype === 'admin' && (
+                <Route exact path="*" element={<AdminHome></AdminHome>} />
               )}
-              {Cookies.get('usertype') ==='user' && (
+              {currentusertype ==='user' && (
                 <>
                   <Route exact path="/" element={<UserHome></UserHome>} />
                   <Route exact path="/chat" element={<ChatComponent></ChatComponent>} />
                 </>
               )}
-              {Cookies.get('usertype') ==='shelter' && (
+              {currentusertype ==='shelter' && (
                 <>
                 <Route exact path="/" element={<ShelterHome></ShelterHome>} />
                 <Route exact path="/chat" element={<ChatComponent></ChatComponent>} />
@@ -63,7 +63,7 @@ function App() {
       </Router>
       :
       <Router>
-          <Navbarcomponent setCurrentAccount={setCurrentAccount} currentAccount={currentAccount} ></Navbarcomponent>
+          <Navbarcomponent setCurrentAccount={setCurrentAccount} setCurrentusertype={setCurrentusertype} currentAccount={currentAccount} ></Navbarcomponent>
           
           <>
             <Routes> 
