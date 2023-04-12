@@ -58,7 +58,7 @@ function Navbarcomponent(props) {
           setShowModal1(false);
           props.setCurrentAccount(userData.aadharcard);
           props.setCurrentusertype(userData.usertype)
-          Cookies.set('aadharcard', userData.aadhar);
+          Cookies.set('aadharcard', userData.aadharcard);
           Cookies.set('usertype', userData.usertype);
           clear();
         }
