@@ -34,7 +34,7 @@ function Navbarcomponent(props) {
   const logout=async()=>{
 		try {
 			props.setCurrentAccount("");
-      Cookies.remove('aadhar');
+      Cookies.remove('aadharcard');
       Cookies.remove('usertype');
     
       <Loader></Loader>
@@ -57,7 +57,8 @@ function Navbarcomponent(props) {
         if(userData.password===password && userData.usertype===usertype){
           setShowModal1(false);
           props.setCurrentAccount(userData.aadharcard);
-          Cookies.set('aadhar', userData.aadhar);
+          props.setCurrentusertype(userData.usertype)
+          Cookies.set('aadharcard', userData.aadhar);
           Cookies.set('usertype', userData.usertype);
           clear();
         }
